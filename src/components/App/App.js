@@ -3,21 +3,8 @@ import "./App.css";
 import SearchBar from "../SearchBar/SearchBar";
 import SearchResults from "../SearchResults/SearchResults";
 import Playlist from "../Playlist/Playlist";
+import Spotify from "../../util/Spotify";
 
-const searchResults = [
-  {
-    id: 1,
-    name: "MIDDLE CHILD",
-    artist: "J. Cole",
-    album: "Revenge of the Dreamers III"
-  },
-  {
-    id: 2,
-    name: "No Role Modelz",
-    artist: "J. Cole",
-    album: "2014 Forest Hills Drive"
-  }
-];
 const playlistName = "My Jams";
 const playlistTracks = [
   { id: 3, name: "Lotus Flower Bomb", artist: "Wale", album: "Ambition" },
@@ -53,6 +40,7 @@ class App extends React.Component {
     this.removeTrack = this.removeTrack.bind(this);
     this.updatePlaylistName = this.updatePlaylistName.bind(this);
     this.savePlaylist = this.savePlaylist.bind(this);
+    this.search = this.search.bind(this);
   }
 
   addTrack(track) {
@@ -88,6 +76,22 @@ class App extends React.Component {
     };
   }
 
+  async search(term) {
+    const response = await Spotify.search(term);
+    const jsonResponse = await response.json();
+    const tracks = jsonResponse.tracks.items.map(track => ({
+      id: track.id,
+      name: track.name,
+      artist: track.artists[0].name,
+      album: track.album.name,
+      url: track.uri
+    }));
+
+    this.setState({
+      searchResults: tracks
+    });
+  }
+
   savePlaylist() {
     // Generate URIs in array
     const playlistURIs = playlistTracks.map(track => track.uri);
@@ -102,7 +106,7 @@ class App extends React.Component {
           Ja<span className="highlight">mmm</span>ing
         </h1>
         <div className="App">
-          <SearchBar />
+          <SearchBar onSearch={this.search} />
           <div className="App-playlist">
             <SearchResults
               onAdd={this.addTrack}
