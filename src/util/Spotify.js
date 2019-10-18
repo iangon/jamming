@@ -31,6 +31,56 @@ const Spotify = {
         Authorization: `Bearer ${accessToken}`
       }
     });
+  },
+
+  async savePlaylist(name, uris) {
+    // Reuse response and jsonResponse variables?
+    // Get user from Spotify
+    let response;
+
+    response = await fetch(`https://api.spotify.com/v1/me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    const user = await response.json();
+
+    // Create a new playlist
+    response = await fetch(
+      `https://api.spotify.com/v1/users/${user.id}/playlists`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: name
+        })
+      }
+    );
+
+    const playlist = await response.json();
+
+    // Add tracks to playlist
+    response = await fetch(
+      `https://api.spotify.com/v1/playlists/${
+        playlist.id
+      }/tracks?uris=${uris.join(",")}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: name
+        })
+      }
+    );
+
+    return response;
   }
 };
 

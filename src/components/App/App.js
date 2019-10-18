@@ -5,35 +5,13 @@ import SearchResults from "../SearchResults/SearchResults";
 import Playlist from "../Playlist/Playlist";
 import Spotify from "../../util/Spotify";
 
-const playlistName = "My Jams";
-const playlistTracks = [
-  { id: 3, name: "Lotus Flower Bomb", artist: "Wale", album: "Ambition" },
-  { id: 4, name: "No Hands", artist: "Wale", album: "Flockaveli" }
-];
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchResults: [
-        {
-          id: 1,
-          name: "MIDDLE CHILD",
-          artist: "J. Cole",
-          album: "Revenge of the Dreamers III"
-        },
-        {
-          id: 2,
-          name: "No Role Modelz",
-          artist: "J. Cole",
-          album: "2014 Forest Hills Drive"
-        }
-      ],
-      playlistName: playlistName,
-      playlistTracks: [
-        { id: 3, name: "Lotus Flower Bomb", artist: "Wale", album: "Ambition" },
-        { id: 4, name: "No Hands", artist: "Wale", album: "Flockaveli" }
-      ]
+      searchResults: [],
+      playlistName: "New Playlist",
+      playlistTracks: []
     };
 
     this.addTrack = this.addTrack.bind(this);
@@ -71,9 +49,9 @@ class App extends React.Component {
   }
 
   updatePlaylistName(name) {
-    this.setState = {
+    this.setState({
       playlistName: name
-    };
+    });
   }
 
   async search(term) {
@@ -84,7 +62,7 @@ class App extends React.Component {
       name: track.name,
       artist: track.artists[0].name,
       album: track.album.name,
-      url: track.uri
+      uri: track.uri
     }));
 
     this.setState({
@@ -92,11 +70,17 @@ class App extends React.Component {
     });
   }
 
-  savePlaylist() {
+  async savePlaylist() {
     // Generate URIs in array
-    const playlistURIs = playlistTracks.map(track => track.uri);
+    const playlistURIs = this.state.playlistTracks.map(track => track.uri);
 
     // Send to Spotify to save to list
+    await Spotify.savePlaylist(this.state.playlistName, playlistURIs);
+
+    this.setState({
+      playlistName: "New Playlist",
+      playlistTracks: []
+    });
   }
 
   render() {
